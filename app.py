@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, session, redirect, url_for
-
+import os
 
 import random
 
@@ -68,5 +68,8 @@ def index():
 
     return render_template('index.html', word_list=all_games)
 
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host=os.environ.get('IP', "0.0.0.0"),
+            port=int(os.environ.get('PORT', 5000)),
+            debug=False)
