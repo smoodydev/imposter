@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    {% if "username" in session %}
+    <a href="logout">logout</a>
+    {% endif %}
+    <ul>
+        {% for game in word_list %}
+        <li>{{ game }} - {{ word_list[game] }}</li>
+        {% endfor %}
+    </ul>
+    <div>Hello</div>
+    {% if "username" in session %}
+    Hi {{ session.username }} {%if "gamename" in session %}{{ session.gamename }}{% endif %}
+    {% if "gamename" in session %}
+    
+    <form action="" method="POST">
+        <input type="text" name="word" id="wordinput">
+        <input type="submit" value="submit">
+    </form>
+
+    {% if session.admin %}
+    <a href="start">START</a>
+    {% endif %}
+
+    {% else %}
+    <h2>Create a new game?</h2>
+    <form action="creategame" method="POST">
+        <input type="text" name="gamename">
+        <input type="submit" value="submit">
+    </form>
+    <h2>Join a game?</h2>
+    <form action="joingame" method="POST">
+        <input type="text" name="gamename">
+        <input type="submit" value="submit">
+    </form>
+
+    {% endif %}
+
+    {% else %}
+    <h2>Please Enter a Username</h2>
+    <form action="login" method="POST">
+        <input type="text" name="username" id="username">
+        <input type="submit" value="submit">
+    </form>
+    {% endif %}
+
+
+</body>
+
+</html>
