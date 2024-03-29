@@ -44,13 +44,13 @@ def start():
     if "admin" in session:
         global all_games
         game = all_games[session['gamename']]
-        word = (random.choice(game["words"]))
-        possible = game["players"].copy()
-        possible.remove(word["author"])
-        game["imposter"] = random.choice(possible)
-        game["word"] = word
-        
- 
+        if len(game["players"]) > 1 and len(game["words"]) > 1 :
+            word = random.choice(game["words"])
+            possible = game["players"].copy()
+            possible.remove(word["author"])
+            game["imposter"] = random.choice(possible)
+            game["word"] = word
+            game["words"] = [d for d in game["words"] if d.get('word') != word['word']]
 
     return redirect(url_for('index')) 
 
@@ -58,15 +58,21 @@ def start():
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    global all_games
+    if "gamename" in session:
+        global all_games
+        word_list = all_games[session["gamename"]]
+    else:
+        word_list = []
+
 
     if request.method == 'POST':
         word = request.form['word']
+        print(word)
         # all_games[session['gamename']] = []
-
+        print(all_games)
         all_games[session['gamename']]["words"].append({"author": session["username"], "word": word})
 
-    return render_template('index.html', word_list=all_games)
+    return render_template('index.html', word_list=word_list)
 
 
 if __name__ == '__main__':
