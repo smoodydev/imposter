@@ -2,10 +2,21 @@ from flask import Flask, render_template, request, session, redirect, url_for
 import os
 
 import random
+from flask_pymongo import PyMongo
+
+if os.path.exists("env.py"):
+    import env
 
 app = Flask(__name__)
+app.config["MONGO_DBNAME"] = "pokemomCards"
+
+app.config["MONGO_URI"] = os.environ.get("MONGO_URI", "")
 app.secret_key = 'your_secret_key'
+
+mongo = PyMongo(app)
 all_games = {}
+
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -27,24 +38,26 @@ def creategame():
     all_games[gamename] = {"words":[], "imposter": "", "word":"", "players": [session["username"]]}
     return redirect(url_for('index')) 
 
+
 @app.route('/joingame', methods=['POST'])
 def joingame():
     if "username" in session:
         gamename = request.form['gamename']
         if gamename in all_games:
             if session["username"] not in all_games[gamename]["players"]:
-                
                 session['gamename'] = gamename
                 session['admin'] = False
                 all_games[gamename]["players"].append(session["username"])
     return redirect(url_for('index')) 
+
 
 @app.route('/start')
 def start():
     if "admin" in session:
         global all_games
         game = all_games[session['gamename']]
-        if len(game["players"]) > 1 and len(game["words"]) > 1 :
+        
+        if len(game["players"]) > 1 and len(game["words"]) >= 1:
             word = random.choice(game["words"])
             possible = game["players"].copy()
             possible.remove(word["author"])
@@ -66,10 +79,12 @@ def index():
 
 
     if request.method == 'POST':
+
+        if "gamename" not in session:
+            return redirect(url_for('index'))
+        
         word = request.form['word']
-        print(word)
-        # all_games[session['gamename']] = []
-        print(all_games)
+        mongo.db.words.insert_one({"word": word})
         all_games[session['gamename']]["words"].append({"author": session["username"], "word": word})
 
     return render_template('index.html', word_list=word_list)
